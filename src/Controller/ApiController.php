@@ -27,7 +27,7 @@ class ApiController extends AbstractController
     }
 
     #[Route('/api/product/{id}', name: 'api_get_product', methods: ['GET'])]
-    public function getOneProducts($id, ProductRepository $productRepository): JsonResponse
+    public function getOneProduct($id, ProductRepository $productRepository): JsonResponse
     {
         $product = $productRepository->findOneById($id);
         if ($product === null){
@@ -55,7 +55,7 @@ class ApiController extends AbstractController
         return $this->json($customerRepository->findById($user->getId()), 200, [], ['groups' => 'customers:read']);
     }
 
-    #[Route('/api/{customer}/user/{id}', name: 'api_get_user', methods: 'GET')]
+    #[Route('/api/{customer}/user/{id}', name: 'api_get_user', methods: ['GET'])]
     public function getOneUser($customer, $id, UserRepository $userRepository, CustomerRepository $customerRepository): JsonResponse
     {
         $user = $userRepository->findOneByName($customer);
@@ -70,7 +70,7 @@ class ApiController extends AbstractController
         return $this->json($customerRepository->findOneById($user->getId()), 200, [], ['groups' => 'customers:read']);
     }
 
-    #[Route('/api/{customer}/user', name: 'api_post_user', methods: 'POST')]
+    #[Route('/api/{customer}/user', name: 'api_post_user', methods: ['POST'])]
     public function addUser($customer, Request $request, UserRepository $userRepository, SerializerInterface $serializer, EntityManagerInterface $em): JsonResponse
     {
 
@@ -125,7 +125,55 @@ class ApiController extends AbstractController
         ], 201);
     }
 
-    #[Route('/api/users/{id}', name: 'api_delete_user', methods: 'DELETE')]
+    #[Route('/api/{customer}/user/{id}', name: 'api_put_user', methods: ['PUT'])]
+    public function putOneUser($customer, $id, UserRepository $userRepository, CustomerRepository $customerRepository, Request $request, SerializerInterface $serializer, EntityManagerInterface $em): JsonResponse
+    {
+        $userCustomer = $userRepository->findOneByName($customer);
+
+        if ($userCustomer === null){
+            return $this->json([
+                'message' => 'Aucun client avec ce nom trouvé',
+                'status' => '400',
+            ], 400);            
+        }
+
+        $user = $customerRepository->findOneById($id);
+        if ($userCustomer === null){
+            return $this->json([
+                'message' => 'Aucun utilisateur avec cet ID trouvé',
+                'status' => '400',
+            ], 400);            
+        }
+        
+        $jsonRecu = $request->getContent();
+        $modUser = $serializer->deserialize($jsonRecu, Customer::class, 'json');
+
+        if ($modUser->getEmail() === null && $modUser->getFirstName() === null && $modUser->getLastName() === null){
+            return $this->json([
+                'message' => 'Vous devez modifier au moins une valeur parmis celle-ci : email, prenom, nom',
+                'status' => '400',
+            ], 400);               
+        }
+
+        if ($modUser->getEmail()){
+            $user->setEmail($modUser->getEmail());
+        }
+
+        if ($modUser->getFirstName()){
+            $user->setFirstName($modUser->getFirstName());
+        }
+
+        if ($modUser->getLastName()){
+            $user->setLastName($modUser->getLastName());
+        }
+
+        $em->persist($user);
+        $em->flush($user);
+
+        return $this->json($user, 200, [], ['groups' => 'customers:read']);
+    }
+
+    #[Route('/api/users/{id}', name: 'api_delete_user', methods: ['DELETE'])]
     public function delUser($id, CustomerRepository $customerRepository, EntityManagerInterface $em): JsonResponse
     {
         $user = $customerRepository->findOneById($id);
@@ -142,3 +190,8 @@ class ApiController extends AbstractController
         return $this->json([], 204);
     }
 }
+
+// Pagination
+// Modèle Richardson
+// Retour JSON pour une mauvaise route
+// Voter Symfony / Mise en cache
