@@ -29,7 +29,7 @@ class Customer
     /**
      * @Groups("customers:read")
      */
-    private $first_name;
+    private $firstName;
 
     #[ORM\Column(type: 'string', length: 255)]
     /**
@@ -60,12 +60,12 @@ class Customer
 
     public function getFirstName(): ?string
     {
-        return $this->first_name;
+        return $this->firstName;
     }
 
-    public function setFirstName(string $first_name): self
+    public function setFirstName(string $firstName): self
     {
-        $this->first_name = $first_name;
+        $this->firstName = $firstName;
 
         return $this;
     }

@@ -2,18 +2,21 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
-
-use App\Entity\Product;
-use App\Repository\ProductRepository;
-
 use App\Entity\User;
-use App\Repository\UserRepository;
-
+use App\Entity\Product;
 use App\Entity\Customer;
+
+use App\Repository\UserRepository;
+use App\Repository\ProductRepository;
 use App\Repository\CustomerRepository;
+
+use Doctrine\ORM\EntityManagerInterface;
+
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ApiController extends AbstractController
 {
@@ -68,20 +71,74 @@ class ApiController extends AbstractController
     }
 
     #[Route('/api/{customer}/user', name: 'api_post_user', methods: 'POST')]
-    public function addUser($customer): JsonResponse
+    public function addUser($customer, Request $request, UserRepository $userRepository, SerializerInterface $serializer, EntityManagerInterface $em): JsonResponse
     {
+
+        $userCustomer = $userRepository->findOneByName($customer);
+
+        if ($userCustomer === null){
+            return $this->json([
+                'message' => 'Aucun client avec ce nom trouvé',
+                'status' => '400',
+            ], 400);            
+        }
+
+        $jsonRecu = $request->getContent();
+        $user = $serializer->deserialize($jsonRecu, Customer::class, 'json');
+
+        if ($user->getEmail() === null){
+            return $this->json([
+                'message' => 'Veuillez spécifier un email pour créer cet utilisateur',
+                'status' => '400',
+            ], 400);               
+        }
+
+        if ($user->getFirstName() === null){
+            return $this->json([
+                'message' => 'Veuillez spécifier un prénom pour créer cet utilisateur',
+                'status' => '400',
+            ], 400);               
+        }
+
+        if ($user->getLastName() === null){
+            return $this->json([
+                'message' => 'Veuillez spécifier un nom de famille pour créer cet utilisateur',
+                'status' => '400',
+            ], 400);               
+        }
+
+        $user->setUser($userCustomer);
+
+        $em->persist($user);
+        $em->flush();
+
+        if ($user->getId() === null){
+            return $this->json([
+                'message' => 'Erreur lors de la création de l\'utilisateur',
+                'status' => '500',
+            ], 500);
+        }
+
         return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/ApiLoginController.php',
-        ]);
+            'message' => 'Création de l\'utilisateur ' . $user->getFirstName() . ' effectué avec succès',
+            'status' => '201',
+        ], 201);
     }
 
-    #[Route('/api/{customer}/user', name: 'api_delete_user', methods: 'DELETE')]
-    public function delUser($customer): JsonResponse
+    #[Route('/api/users/{id}', name: 'api_delete_user', methods: 'DELETE')]
+    public function delUser($id, CustomerRepository $customerRepository, EntityManagerInterface $em): JsonResponse
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/ApiLoginController.php',
-        ]);
+        $user = $customerRepository->findOneById($id);
+        if ($user === null){
+            return $this->json([
+                'message' => 'Aucun utilisateur avec cet ID trouvé',
+                'status' => '400',
+            ], 400);
+        }
+
+        $em->remove($user);
+        $em->flush();
+        
+        return $this->json([], 204);
     }
 }
