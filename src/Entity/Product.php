@@ -2,9 +2,10 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ProductRepository;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ApiResource]
@@ -13,15 +14,27 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    /**
+     * @Groups("products:read")
+     */
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    /**
+     * @Groups("products:read")
+     */
     private $name;
 
     #[ORM\Column(type: 'text')]
+    /**
+     * @Groups("products:read")
+     */
     private $description;
 
     #[ORM\Column(type: 'integer')]
+    /**
+     * @Groups("products:read")
+     */
     private $price;
 
     public function getId(): ?int

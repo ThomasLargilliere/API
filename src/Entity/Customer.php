@@ -2,9 +2,10 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\CustomerRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\CustomerRepository;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CustomerRepository::class)]
 #[ApiResource]
@@ -13,15 +14,27 @@ class Customer
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    /**
+     * @Groups("customers:read")
+     */
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    /**
+     * @Groups("customers:read")
+     */
     private $email;
 
     #[ORM\Column(type: 'string', length: 255)]
+    /**
+     * @Groups("customers:read")
+     */
     private $first_name;
 
     #[ORM\Column(type: 'string', length: 255)]
+    /**
+     * @Groups("customers:read")
+     */
     private $lastName;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'customers')]
