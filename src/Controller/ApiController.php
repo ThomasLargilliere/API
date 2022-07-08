@@ -18,8 +18,19 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
+use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Pagerfanta;
+
+use Hateoas\HateoasBuilder;
+use Hateoas\Representation\PaginatedRepresentation;
+use Hateoas\Representation\CollectionRepresentation;
+use Hateoas\Representation\Factory\PagerfantaFactory;
+
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
+
 class ApiController extends AbstractController
 {
+
     #[Route('/api/products', name: 'api_get_products', methods: ['GET'])]
     public function getAllProducts(ProductRepository $productRepository): JsonResponse
     {
@@ -42,17 +53,23 @@ class ApiController extends AbstractController
     #[Route('/api/{customer}/users', name: 'api_get_users', methods:  ['GET'])]
     public function getAllUsers($customer, UserRepository $userRepository, CustomerRepository $customerRepository): JsonResponse
     {
-
         $user = $userRepository->findOneByName($customer);
 
         if ($user === null){
             return $this->json([
                 'message' => 'Aucun client avec ce nom trouvé',
                 'status' => '400',
-            ], 400);            
+            ], 400); 
         }
 
-        return $this->json($customerRepository->findById($user->getId()), 200, [], ['groups' => 'customers:read']);
+        $customers = $customerRepository->findByUser($user->getId());
+
+        $hateoas = HateoasBuilder::create()->build();
+        $json = $hateoas->serialize($customers, 'json');
+
+        $response = new JsonResponse();
+        $response->setContent($json);
+        return $response;
     }
 
     #[Route('/api/{customer}/user/{id}', name: 'api_get_user', methods: ['GET'])]
@@ -67,7 +84,20 @@ class ApiController extends AbstractController
             ], 400);            
         }
 
-        return $this->json($customerRepository->findOneById($user->getId()), 200, [], ['groups' => 'customers:read']);
+        $customer = $customerRepository->findOneById($id);
+        if ($customer === null){
+            return $this->json([
+                'message' => 'Aucun utilisateur trouvé avec cet ID',
+                'status' => '400',
+            ], 400);             
+        }
+
+        $hateoas = HateoasBuilder::create()->build();
+        $json = $hateoas->serialize($customer, 'json');
+
+        $response = new JsonResponse();
+        $response->setContent($json);
+        return $response;
     }
 
     #[Route('/api/{customer}/user', name: 'api_post_user', methods: ['POST'])]
@@ -192,6 +222,5 @@ class ApiController extends AbstractController
 }
 
 // Pagination
-// Modèle Richardson
-// Retour JSON pour une mauvaise route
-// Voter Symfony / Mise en cache
+// Voter Symfony
+// Mise en cache

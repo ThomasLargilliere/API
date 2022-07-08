@@ -109,6 +109,12 @@
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.12"
     },
+    "jms/metadata": {
+        "version": "2.6.1"
+    },
+    "jms/serializer": {
+        "version": "3.17.1"
+    },
     "laminas/laminas-code": {
         "version": "4.5.1"
     },
@@ -147,6 +153,9 @@
     },
     "nikic/php-parser": {
         "version": "v4.14.0"
+    },
+    "pagerfanta/pagerfanta": {
+        "version": "v3.6.1"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -402,6 +411,9 @@
     },
     "webmozart/assert": {
         "version": "1.10.0"
+    },
+    "willdurand/hateoas": {
+        "version": "3.8.0"
     },
     "willdurand/negotiation": {
         "version": "3.1.0"

@@ -7,6 +7,20 @@ use App\Repository\CustomerRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+use JMS\Serializer\Annotation as Serializer;
+use Hateoas\Configuration\Annotation as Hateoas;
+
+/**
+ * @Serializer\XmlRoot("customer")
+ *
+ * @Hateoas\Relation(
+ * "self",
+ * href = "expr('/api/' ~ object.getUser().getName() ~ '/user/' ~ object.getId())",
+ * exclusion = @Hateoas\Exclusion(groups = {"read"})
+ * )
+ * 
+ */
+
 #[ORM\Entity(repositoryClass: CustomerRepository::class)]
 #[ApiResource]
 class Customer
@@ -14,31 +28,23 @@ class Customer
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    /**
-     * @Groups("customers:read")
-     */
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    /**
-     * @Groups("customers:read")
-     */
     private $email;
 
     #[ORM\Column(type: 'string', length: 255)]
-    /**
-     * @Groups("customers:read")
-     */
     private $firstName;
 
     #[ORM\Column(type: 'string', length: 255)]
-    /**
-     * @Groups("customers:read")
-     */
     private $lastName;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'customers')]
     #[ORM\JoinColumn(nullable: false)]
+    /**
+     * @Groups("read")
+     * @Serializer\Groups({"read"})
+     */
     private $user;
 
     public function getId(): ?int
