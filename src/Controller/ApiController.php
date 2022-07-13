@@ -22,8 +22,6 @@ use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
 
 use Hateoas\HateoasBuilder;
-use Hateoas\Representation\PaginatedRepresentation;
-use Hateoas\Representation\CollectionRepresentation;
 use Hateoas\Representation\Factory\PagerfantaFactory;
 
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
@@ -34,7 +32,14 @@ class ApiController extends AbstractController
     #[Route('/api/products', name: 'api_get_products', methods: ['GET'])]
     public function getAllProducts(ProductRepository $productRepository): JsonResponse
     {
-        return $this->json($productRepository->findAll(), 200, [], ['groups' => 'products:read']);
+        $products = $productRepository->findAll();
+
+        $hateoas = HateoasBuilder::create()->build();
+        $json = $hateoas->serialize($products, 'json');
+
+        $response = new JsonResponse();
+        $response->setContent($json);
+        return $response;
     }
 
     #[Route('/api/product/{id}', name: 'api_get_product', methods: ['GET'])]
@@ -47,7 +52,12 @@ class ApiController extends AbstractController
                 'status' => '400',
             ], 400);
         }
-        return $this->json($product, 200, [], ['groups' => 'products:read']);
+        $hateoas = HateoasBuilder::create()->build();
+        $json = $hateoas->serialize($product, 'json');
+
+        $response = new JsonResponse();
+        $response->setContent($json);
+        return $response;
     }
 
     #[Route('/api/{customer}/users', name: 'api_get_users', methods:  ['GET'])]
@@ -222,5 +232,4 @@ class ApiController extends AbstractController
 }
 
 // Pagination
-// Voter Symfony
 // Mise en cache

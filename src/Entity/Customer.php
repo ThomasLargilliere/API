@@ -15,9 +15,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *
  * @Hateoas\Relation(
  * "self",
- * href = "expr('/api/' ~ object.getUser().getName() ~ '/user/' ~ object.getId())",
- * exclusion = @Hateoas\Exclusion(groups = {"read"})
- * )
+ * href = "expr('/api/' ~ object.getUser().getName() ~ '/user/' ~ object.getId())")
  * 
  */
 
@@ -42,8 +40,7 @@ class Customer
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'customers')]
     #[ORM\JoinColumn(nullable: false)]
     /**
-     * @Groups("read")
-     * @Serializer\Groups({"read"})
+     * @Serializer\Exclude()
      */
     private $user;
 

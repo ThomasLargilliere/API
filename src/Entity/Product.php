@@ -7,6 +7,18 @@ use App\Repository\ProductRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+use JMS\Serializer\Annotation as Serializer;
+use Hateoas\Configuration\Annotation as Hateoas;
+
+/**
+ * @Serializer\XmlRoot("customer")
+ *
+ * @Hateoas\Relation(
+ * "self",
+ * href = "expr('/api/product/' ~ object.getId())")
+ * 
+ */
+
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ApiResource]
 class Product
