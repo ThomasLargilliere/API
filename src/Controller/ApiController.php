@@ -23,6 +23,8 @@ use Pagerfanta\Pagerfanta;
 
 use Hateoas\HateoasBuilder;
 use Hateoas\Representation\Factory\PagerfantaFactory;
+use Hateoas\Representation\PaginatedRepresentation;
+use Hateoas\Representation\CollectionRepresentation;
 
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
@@ -34,8 +36,17 @@ class ApiController extends AbstractController
     {
         $products = $productRepository->findAll();
 
+        $pagerAdapter = new ArrayAdapter($products);
+        $pager = new Pagerfanta($pagerAdapter);
+        $pager->setMaxPerPage(10);
+        $pager->setCurrentPage(1);
+
+        $pagerFactory = new PagerfantaFactory();
+        $paginatedCollection = $pagerFactory->createRepresentation($pager, new Route('api_get_products'));
+        
+
         $hateoas = HateoasBuilder::create()->build();
-        $json = $hateoas->serialize($products, 'json');
+        $json = $hateoas->serialize($paginatedCollection, 'json');
 
         $response = new JsonResponse();
         $response->setContent($json);
