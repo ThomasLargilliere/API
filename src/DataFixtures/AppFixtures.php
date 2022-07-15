@@ -24,7 +24,6 @@ class AppFixtures extends Fixture
         $user->setPassword('$2y$10$jM5laK.5N5.0zQ7Zcdi58u93IwV.jBlvJjDHdnnNlI2MLCvctncE6');
         $user->setName('spyoo');
         $manager->persist($user);
-
         $manager->flush();
 
     }
