@@ -186,25 +186,59 @@ class ApiController extends AbstractController
         }
 
         $jsonRecu = $request->getContent();
+        if ($jsonRecu === ""){
+            return $this->json([
+                'message' => 'Le body ne peut pas être vide',
+                'status' => '400',
+            ], 400);             
+        }
+
+        $result = json_decode($jsonRecu, true);
+        if ($result === null){
+            return $this->json([
+                'message' => 'Veuillez spécifier un email, un prénom, un nom de famille pour créer cet utilisateur',
+                'status' => '400',
+            ], 400);             
+        }
+
+        if ((isset($result['email'])) && (gettype($result['email']) != "string")){
+            return $this->json([
+                'message' => 'Le type de "email" doit être string',
+                'status' => '400',
+            ], 400);  
+        }
+        if ((isset($result['firstName'])) && (gettype($result['firstName']) != "string")){
+            return $this->json([
+                'message' => 'Le type de "firstName" doit être string',
+                'status' => '400',
+            ], 400);  
+        }
+        if ((isset($result['lastName'])) && (gettype($result['lastName']) != "string")){
+            return $this->json([
+                'message' => 'Le type de "lastName" doit être string',
+                'status' => '400',
+            ], 400);  
+        }
+
         $user = $serializer->deserialize($jsonRecu, Customer::class, 'json');
 
         if ($user->getEmail() === null){
             return $this->json([
-                'message' => 'Veuillez spécifier un email pour créer cet utilisateur',
+                'message' => 'Veuillez spécifier un email (email) pour créer cet utilisateur',
                 'status' => '400',
             ], 400);               
         }
 
         if ($user->getFirstName() === null){
             return $this->json([
-                'message' => 'Veuillez spécifier un prénom pour créer cet utilisateur',
+                'message' => 'Veuillez spécifier un prénom (firstName) pour créer cet utilisateur',
                 'status' => '400',
             ], 400);               
         }
 
         if ($user->getLastName() === null){
             return $this->json([
-                'message' => 'Veuillez spécifier un nom de famille pour créer cet utilisateur',
+                'message' => 'Veuillez spécifier un nom de famille (lastName) pour créer cet utilisateur',
                 'status' => '400',
             ], 400);               
         }
@@ -221,10 +255,13 @@ class ApiController extends AbstractController
             ], 500);
         }
 
-        return $this->json([
-            'message' => 'Création de l\'utilisateur ' . $user->getFirstName() . ' effectué avec succès',
-            'status' => '201',
-        ], 201);
+        $hateoas = HateoasBuilder::create()->build();
+        $json = $hateoas->serialize($user, 'json');
+
+        $response = new JsonResponse();
+        $response->setContent($json);
+        $response->setStatusCode(201);
+        return $response;
     }
 
     #[Route('/api/{customer}/user/{id}', name: 'api_put_user', methods: ['PUT'])]
@@ -246,8 +283,15 @@ class ApiController extends AbstractController
                 'status' => '400',
             ], 400);            
         }
-        
+
         $jsonRecu = $request->getContent();
+        if ($jsonRecu === ""){
+            return $this->json([
+                'message' => 'Le body ne peut pas être vide',
+                'status' => '400',
+            ], 400);             
+        }
+
         $modUser = $serializer->deserialize($jsonRecu, Customer::class, 'json');
 
         if ($modUser->getEmail() === null && $modUser->getFirstName() === null && $modUser->getLastName() === null){
@@ -272,7 +316,13 @@ class ApiController extends AbstractController
         $em->persist($user);
         $em->flush($user);
 
-        return $this->json($user, 200, [], ['groups' => 'customers:read']);
+        $hateoas = HateoasBuilder::create()->build();
+        $json = $hateoas->serialize($user, 'json');
+
+        $response = new JsonResponse();
+        $response->setContent($json);
+        return $response;
+
     }
 
     #[Route('/api/users/{id}', name: 'api_delete_user', methods: ['DELETE'])]
