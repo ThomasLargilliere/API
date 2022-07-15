@@ -2,8 +2,9 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\User;
 use App\Entity\Product;
+use App\Entity\User;
+use App\Entity\Customer;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 
