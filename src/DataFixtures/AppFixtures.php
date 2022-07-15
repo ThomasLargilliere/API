@@ -19,6 +19,7 @@ class AppFixtures extends Fixture
             $product->setPrice(($i * 10) + 10);
             $manager->persist($product);
         }
+        $manager->flush();
 
         $user = new User();
         $user->setEmail('spyoo@spyoo.fr');
@@ -35,5 +36,6 @@ class AppFixtures extends Fixture
             $customer->setLastName('Client ' . $i . ' Nom');
             $manager->persist($customer);
         }
+        $manager->flush();
     }
 }
