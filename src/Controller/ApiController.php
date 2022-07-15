@@ -31,25 +31,47 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 class ApiController extends AbstractController
 {
 
-    #[Route('/api/products', name: 'api_get_products', methods: ['GET'])]
-    public function getAllProducts(ProductRepository $productRepository): JsonResponse
+    #[Route('/api/products/{page}', defaults:['page' => 1], name: 'api_get_products', methods: ['GET'])]
+    public function getAllProducts($page, Request $request, EntityManagerInterface $em, ProductRepository $productRepository): JsonResponse
     {
+        $page = intval($page);
+        $maxPerPage = 5;
+
         $products = $productRepository->findAll();
+        $array = $products;
 
-        $pagerAdapter = new ArrayAdapter($products);
-        $pager = new Pagerfanta($pagerAdapter);
-        $pager->setMaxPerPage(10);
-        $pager->setCurrentPage(1);
-
-        $pagerFactory = new PagerfantaFactory();
-        $paginatedCollection = $pagerFactory->createRepresentation($pager, new Route('api_get_products'));
+        $adapter = new ArrayAdapter($array);
+        $pagerfanta = new Pagerfanta($adapter);
+        $pagerfanta
+            ->setMaxPerPage($maxPerPage)
+            ->setCurrentPage($page);
         
+        $returnProducts = array();
 
+        foreach($pagerfanta->getCurrentPageResults() as $product){
+            $returnProducts[] = $product;
+        }
+
+        $data = [
+            'total' => $pagerfanta->getNbResults(),
+            'count' => count($returnProducts),
+            'products' => $returnProducts
+        ];
+
+        if ($pagerfanta->hasPreviousPage()){
+            $data['previousPage'] = '/api/products/' . $pagerfanta->getPreviousPage();
+        }
+        if ($pagerfanta->hasNextPage()){
+            $data['nextPage'] = '/api/products/' . $pagerfanta->getNextPage();
+        }
+        
         $hateoas = HateoasBuilder::create()->build();
-        $json = $hateoas->serialize($paginatedCollection, 'json');
+        $json = $hateoas->serialize($data, 'json');
+        
 
         $response = new JsonResponse();
         $response->setContent($json);
+
         return $response;
     }
 
@@ -71,10 +93,11 @@ class ApiController extends AbstractController
         return $response;
     }
 
-    #[Route('/api/{customer}/users', name: 'api_get_users', methods:  ['GET'])]
-    public function getAllUsers($customer, UserRepository $userRepository, CustomerRepository $customerRepository): JsonResponse
+    #[Route('/api/{customer}/users/{page}', defaults:['page' => 1], name: 'api_get_users', methods:  ['GET'])]
+    public function getAllUsers($customer, $page, UserRepository $userRepository, CustomerRepository $customerRepository): JsonResponse
     {
         $user = $userRepository->findOneByName($customer);
+        $customerName = $customer;
 
         if ($user === null){
             return $this->json([
@@ -83,10 +106,38 @@ class ApiController extends AbstractController
             ], 400); 
         }
 
+        $page = intval($page);
+        $maxPerPage = 5;
+
         $customers = $customerRepository->findByUser($user->getId());
+        $array = $customers;
+
+        $adapter = new ArrayAdapter($array);
+        $pagerfanta = new Pagerfanta($adapter);
+        $pagerfanta
+            ->setMaxPerPage($maxPerPage)
+            ->setCurrentPage($page);
+        
+        $returnCustomers = array();
+        foreach($pagerfanta->getCurrentPageResults() as $customer){
+            $returnCustomers[] = $customer;
+        }
+
+        $data = [
+            'total' => $pagerfanta->getNbResults(),
+            'count' => count($returnCustomers),
+            'customers' => $returnCustomers
+        ];
+
+        if ($pagerfanta->hasPreviousPage()){
+            $data['previousPage'] = '/api/' . $customerName .'/users/' . $pagerfanta->getPreviousPage();
+        }
+        if ($pagerfanta->hasNextPage()){
+            $data['nextPage'] = '/api/' . $customerName .'/users/' . $pagerfanta->getNextPage();
+        }
 
         $hateoas = HateoasBuilder::create()->build();
-        $json = $hateoas->serialize($customers, 'json');
+        $json = $hateoas->serialize($data, 'json');
 
         $response = new JsonResponse();
         $response->setContent($json);
@@ -241,6 +292,3 @@ class ApiController extends AbstractController
         return $this->json([], 204);
     }
 }
-
-// Pagination
-// Mise en cache
