@@ -1,18 +1,4 @@
 {
-    "api-platform/core": {
-        "version": "2.6",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "2.5",
-            "ref": "05b57782a78c21a664a42055dc11cf1954ca36bb"
-        },
-        "files": [
-            "./config/packages/api_platform.yaml",
-            "./config/routes/api_platform.yaml",
-            "./src/Entity/.gitignore"
-        ]
-    },
     "doctrine/annotations": {
         "version": "1.13",
         "recipe": {
@@ -103,9 +89,6 @@
     "doctrine/sql-formatter": {
         "version": "1.1.2"
     },
-    "fig/link-util": {
-        "version": "1.2.0"
-    },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.12"
     },
@@ -153,6 +136,19 @@
     "namshi/jose": {
         "version": "7.2.3"
     },
+    "nelmio/api-doc-bundle": {
+        "version": "4.9",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "3.0",
+            "ref": "c8e0c38e1a280ab9e37587a8fa32b251d5bc1c94"
+        },
+        "files": [
+            "./config/packages/nelmio_api_doc.yaml",
+            "./config/routes/nelmio_api_doc.yaml"
+        ]
+    },
     "nelmio/cors-bundle": {
         "version": "2.2",
         "recipe": {
@@ -191,9 +187,6 @@
     },
     "psr/event-dispatcher": {
         "version": "1.0.0"
-    },
-    "psr/link": {
-        "version": "2.0.1"
     },
     "psr/log": {
         "version": "3.0.0"
@@ -300,6 +293,9 @@
             "version": "1.0",
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
+    },
+    "symfony/options-resolver": {
+        "version": "v6.0.3"
     },
     "symfony/password-hasher": {
         "version": "v6.0.8"
@@ -414,9 +410,6 @@
     "symfony/var-exporter": {
         "version": "v6.0.9"
     },
-    "symfony/web-link": {
-        "version": "v6.0.3"
-    },
     "symfony/yaml": {
         "version": "v6.0.3"
     },
@@ -441,7 +434,7 @@
             "./config/packages/bazinga_hateoas.yaml"
         ]
     },
-    "willdurand/negotiation": {
-        "version": "3.1.0"
+    "zircote/swagger-php": {
+        "version": "4.4.7"
     }
 }

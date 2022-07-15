@@ -7,12 +7,12 @@
         "php": ">=8.0.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "api-platform/core": "^2.6",
         "doctrine/annotations": "^1.0",
         "doctrine/doctrine-bundle": "^2.7",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.12",
         "lexik/jwt-authentication-bundle": "^2.15",
+        "nelmio/api-doc-bundle": "^4.9",
         "nelmio/cors-bundle": "^2.2",
         "pagerfanta/core": "^3.6",
         "pagerfanta/doctrine-orm-adapter": "^3.6",
@@ -85,7 +85,7 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": false,
+            "allow-contrib": true,
             "require": "6.0.*"
         }
     },
