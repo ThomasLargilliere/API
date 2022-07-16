@@ -24,7 +24,7 @@ Projet BileMo API OpenClassrooms
 ```
     symfony server:start
 ```
-7. Accéder à la documentation de l'API via http://votreDomaine/api/doc
+7. Accéder à la documentation de l'API via http://localhost:8000/api/doc
 
 OPTIONNEL :
 
