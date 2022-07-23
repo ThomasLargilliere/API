@@ -9,13 +9,12 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-use Hateoas\HateoasBuilder;
-use Hateoas\Representation\CollectionRepresentation;
+use App\Service\HateoasJsonResponse;
 
 class ApiGetOneProductsController extends AbstractController
 {
     #[Route('/api/products/show/{id}', name: 'api_get_one_products', methods: ['GET'])]
-    public function getOneProduct($id, ProductRepository $productRepository): JsonResponse
+    public function getOneProduct($id, ProductRepository $productRepository, HateoasJsonResponse $hateoasJsonResponse): JsonResponse
     {
         $product = $productRepository->findOneById($id);
         if ($product === null){
@@ -24,11 +23,6 @@ class ApiGetOneProductsController extends AbstractController
                 'status' => '400',
             ], 400);
         }
-        $hateoas = HateoasBuilder::create()->build();
-        $json = $hateoas->serialize($product, 'json');     
-        
-        $response = new JsonResponse();
-        $response->setContent($json);
-        return $response;
+        return $hateoasJsonResponse->getHateoasJsonResponse($product, 200);
     }
 }

@@ -17,15 +17,12 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-use Pagerfanta\Pagerfanta;
-use Pagerfanta\Adapter\ArrayAdapter;
-
-use Hateoas\HateoasBuilder;
+use App\Service\HateoasJsonResponse;
 
 class ApiCreateUserController extends AbstractController
 {
     #[Route('/api/{customer}/users', name: 'api_post_user', methods: ['POST'])]
-    public function addUser($customer, Request $request, UserRepository $userRepository, SerializerInterface $serializer, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
+    public function addUser($customer, Request $request, UserRepository $userRepository, SerializerInterface $serializer, EntityManagerInterface $em, ValidatorInterface $validator, HateoasJsonResponse $hateoasJsonResponse): JsonResponse
     {
         $userCustomer = $userRepository->findOneByName($customer);
         if ($userCustomer === null){
@@ -72,12 +69,6 @@ class ApiCreateUserController extends AbstractController
             ], 500);
         }
 
-        $hateoas = HateoasBuilder::create()->build();
-        $json = $hateoas->serialize($user, 'json');
-
-        $response = new JsonResponse();
-        $response->setContent($json);
-        $response->setStatusCode(201);
-        return $response;
+        return $hateoasJsonResponse->getHateoasJsonResponse($user, 201);
     }
 }

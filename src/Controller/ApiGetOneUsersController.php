@@ -12,15 +12,12 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-use Pagerfanta\Pagerfanta;
-use Pagerfanta\Adapter\ArrayAdapter;
-
-use Hateoas\HateoasBuilder;
+use App\Service\HateoasJsonResponse;
 
 class ApiGetOneUsersController extends AbstractController
 {
     #[Route('/api/{customer}/users/show/{id}', name: 'api_get_user', methods: ['GET'])]
-    public function getOneUser($customer, $id, UserRepository $userRepository, CustomerRepository $customerRepository): JsonResponse
+    public function getOneUser($customer, $id, UserRepository $userRepository, CustomerRepository $customerRepository, HateoasJsonResponse $hateoasJsonResponse): JsonResponse
     {
         $user = $userRepository->findOneByName($customer);
 
@@ -39,11 +36,6 @@ class ApiGetOneUsersController extends AbstractController
             ], 400);             
         }
 
-        $hateoas = HateoasBuilder::create()->build();
-        $json = $hateoas->serialize($customer, 'json');
-        $response = new JsonResponse();
-        $response->setContent($json);
-        
-        return $response;
+        return $hateoasJsonResponse->getHateoasJsonResponse($customer, 200);
     }
 }

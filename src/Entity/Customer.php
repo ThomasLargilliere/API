@@ -13,7 +13,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *
  * @Hateoas\Relation(
  * "self",
- * href = "expr('/api/' ~ object.getUser().getName() ~ '/user/' ~ object.getId())")
+ * href = "expr('/api/' ~ object.getUser().getName() ~ '/users/show/' ~ object.getId())")
  * 
  */
 

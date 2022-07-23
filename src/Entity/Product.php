@@ -15,7 +15,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *
  * @Hateoas\Relation(
  * "self",
- * href = "expr('/api/product/' ~ object.getId())")
+ * href = "expr('/api/products/show/' ~ object.getId())")
  * 
  */
 
