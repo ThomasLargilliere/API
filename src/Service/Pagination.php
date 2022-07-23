@@ -36,3 +36,5 @@ class Pagination
         return $data;
     }
 }
+
+?>
