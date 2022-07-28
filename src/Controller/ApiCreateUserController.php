@@ -28,8 +28,8 @@ class ApiCreateUserController extends AbstractController
         if ($userCustomer === null){
             return $this->json([
                 'message' => 'Aucun client avec ce nom trouvé',
-                'status' => '400',
-            ], 400);            
+                'status' => '404',
+            ], 404);            
         }
         $jsonRecu = $request->getContent();
         if ($jsonRecu === ""){
